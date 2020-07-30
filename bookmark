@@ -1,0 +1,84 @@
+#!/bin/sh
+
+function bookmark () {
+    if [ -L $1 ] ; then
+        echo "$2: name already used by another bookmark"
+    elif [ ! -d $3 ] ; then
+        echo "$3: cannot save inexistent directory"
+    else
+        # fullpath verification
+        FULLPATH=$(readlink -f $3)
+        ln -s $FULLPATH $1
+        echo "bookmark saved as $2 ($1)"
+    fi
+}
+
+function open_bookmark () {
+    if [ -L $1 ] ; then
+        if [ -e $1 ] ; then
+            echo "cd $(readlink -f $1)"
+            cd $(readlink -f $1)
+        else
+            echo "$2: orphan link"
+        fi
+    else
+        echo "$2: not bookmarked"
+    fi
+}
+
+function list_bookmarks () {
+    echo "stored bookmarks:"
+    for f in $1*; do
+        echo $(basename $f) "--" $(readlink -f $f)
+    done
+}
+
+function delete_bookmark () {
+    if [ -L $1 ] ; then
+        rm $1
+        echo "$2: deleted"
+    else
+        echo "$2: already inexistent"
+    fi
+}
+
+function echo_manual () {
+    echo "usage: bm [option] [bookmark alias] [filepath (when saving; will be pwd if left blank)]"
+    echo "options:"
+    echo "--save"
+    echo "--open"
+    echo "--list"
+    echo "--remove"
+}
+
+CHOICE="$1"
+BMALIAS="$2"
+BMTARGET="${3:-$PWD}"
+BMPATH="$HOME/.bookmarks/"
+
+if [ ! -d "$BMPATH" ]; then
+    mkdir $BMPATH
+fi
+
+if [[ $# -lt 2 && ! $1 == list ]] ; then
+    echo_manual
+else
+    case $1 in
+        save)
+            bookmark "$BMPATH$BMALIAS" $BMALIAS $BMTARGET 
+            ;;
+        open)
+            open_bookmark "$BMPATH$BMALIAS" $BMALIAS 
+            ;;
+        list)
+            list_bookmarks $BMPATH
+            ;;
+        remove)
+            delete_bookmark "$BMPATH$BMALIAS" $BMALIAS
+            ;;
+        *)
+            echo_manual
+            ;;
+    esac
+fi
+
