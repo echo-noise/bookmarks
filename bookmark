@@ -45,16 +45,16 @@ function delete_bookmark () {
 function echo_manual () {
     echo "usage: bm [option] [bookmark alias] [filepath (when saving; will be pwd if left blank)]"
     echo "options:"
-    echo "--save"
-    echo "--open"
-    echo "--list"
-    echo "--remove"
+    echo "--save, -s"
+    echo "--open, -o"
+    echo "--list, -l"
+    echo "--remove, -r"
 }
 
 CHOICE="$1"
 BMALIAS="$2"
 BMTARGET="${3:-$PWD}"
-BMPATH="$HOME/.bookmarks/"
+BMPATH="$HOME/.shbookmarks/"
 
 if [ ! -d "$BMPATH" ]; then
     mkdir $BMPATH
@@ -63,17 +63,17 @@ fi
 if [[ $# -lt 2 && ! $1 == list ]] ; then
     echo_manual
 else
-    case $1 in
-        save)
+    case ${CHOICE//-} in
+        save | s)
             bookmark "$BMPATH$BMALIAS" $BMALIAS $BMTARGET 
             ;;
-        open)
+        open | o)
             open_bookmark "$BMPATH$BMALIAS" $BMALIAS 
             ;;
-        list)
+        list | l)
             list_bookmarks $BMPATH
             ;;
-        remove)
+        remove | r)
             delete_bookmark "$BMPATH$BMALIAS" $BMALIAS
             ;;
         *)
@@ -81,4 +81,3 @@ else
             ;;
     esac
 fi
-
