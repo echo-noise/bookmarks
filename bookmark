@@ -60,7 +60,7 @@ if [ ! -d "$BMPATH" ]; then
     mkdir $BMPATH
 fi
 
-if [[ $# -lt 2 && ! $1 == list ]] ; then
+if [ $# -lt 2 ] && {[ "${CHOICE//-}" != "list" ] && [ "${CHOICE//-}" != "l" ]}; then
     echo_manual
 else
     case ${CHOICE//-} in
